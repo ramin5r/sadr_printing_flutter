@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'add_order_screen.dart';
 import 'customers_screen.dart';
-import 'home_screen.dart';
-import 'orders_screen.dart'; // 👈 اضافه شد
+import 'Navigator_Screens/home_screen.dart';
+import 'Navigator_Screens/orders_screen.dart'; // 👈 اضافه شد
 
 void main() {
   runApp(const SadrPrintingApp());
 }
-//ljlkjlkj
 class SadrPrintingApp extends StatelessWidget {
   const SadrPrintingApp({super.key});
 

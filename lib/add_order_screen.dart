@@ -84,7 +84,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       price: int.tryParse(priceController.text) ?? 0,
       deliveryDate: dateController.text.trim(),
       notes: notesController.text.trim(),
-      status: status, // ⭐ مهم
+      status: status,
       createdAt: widget.order?.createdAt ?? DateTime.now().toIso8601String(),
     );
 

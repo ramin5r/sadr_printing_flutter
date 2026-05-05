@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'order_model.dart';
-import 'add_order_screen.dart';
-import 'order_details_screen.dart';
+import '../database_helper.dart';
+import '../order_model.dart';
+import '../add_order_screen.dart';
+import '../order_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int refreshNumber;
@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+// ================= MODEL =================
 class HomeData {
   final int all;
   final int doing;
@@ -34,15 +35,32 @@ class HomeData {
   });
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+// ================= STATE =================
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver {
+
   Future<HomeData>? futureData;
 
+  // 🚀 init
   @override
   void initState() {
     super.initState();
+
+    // 👇 برای تشخیص برگشت به اپ
+    WidgetsBinding.instance.addObserver(this);
+
     _load();
   }
 
+  // 🔁 وقتی اپ دوباره فعال شد (مثلاً برگشتی از صفحه دیگر)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _load(); // 🔥 auto refresh واقعی
+    }
+  }
+
+  // 🔁 وقتی از بیرون refreshNumber تغییر کرد
   @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -68,18 +86,16 @@ class _HomeScreenState extends State<HomeScreen> {
       doing: await db.countOrdersByStatus('در حال انجام'),
       printed: await db.countOrdersByStatus('چاپ شده'),
       delivered: await db.countOrdersByStatus('تحویل داده شده'),
-
-      // ⭐ فقط 5 تای آخر
       orders: allOrders.take(5).toList(),
     );
   }
 
-  // ================= ACTIONS =================
-  Future<void> deleteOrder(int id) async {
-    await DatabaseHelper.instance.deleteOrder(id);
+  // ================= REFRESH =================
+  Future<void> refresh() async {
     _load();
   }
 
+  // ================= DETAILS =================
   Future<void> openDetails(int id) async {
     final result = await Navigator.push(
       context,
@@ -93,24 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> editOrder(OrderModel order) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => AddOrderScreen(order: order),
-      ),
-    );
-
-    if (result == true) {
-      _load();
-    }
-  }
-
-  Future<void> refresh() async {
-    _load();
-  }
-
-  // ================= UI =================
+  // ================= UI BOX =================
   Widget statBox(String title, int value) {
     return Expanded(
       child: Container(
@@ -137,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ================= BUILD =================
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<HomeData>(
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (!snapshot.hasData) {
-          return const Center(child: Text("داده موجود نیست"));
+          return const Center(child: Text("هیچ سفارشی ثبت نشده است"));
         }
 
         final data = snapshot.data!;
@@ -175,28 +175,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 20),
 
-              // ================= HEADER =================
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "آخرین سفارش‌ها",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: widget.onAddOrder,
-                    icon: const Icon(Icons.add),
-                    label: const Text("سفارش"),
-                  ),
-                ],
+              const Text(
+                "آخرین سفارش‌ها",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 10),
 
-              // ================= ORDERS =================
+              // ================= LIST =================
               if (data.orders.isEmpty)
                 const Center(child: Text("هیچ سفارشی وجود ندارد"))
               else
@@ -204,7 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Card(
                     child: ListTile(
                       onTap: () => openDetails(order.id!),
-                      onLongPress: () => editOrder(order),
                       title: Text(order.printType),
                       subtitle: Text(order.customerName),
                       trailing: Text(order.status),
@@ -216,5 +204,12 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  // ================= DISPOSE =================
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }
