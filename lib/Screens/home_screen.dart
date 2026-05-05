@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../database_helper.dart';
 import '../order_model.dart';
-import '../add_order_screen.dart';
-import '../order_details_screen.dart';
+import 'order_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int refreshNumber;
@@ -39,44 +38,31 @@ class HomeData {
 class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver {
 
-  Future<HomeData>? futureData;
-
-  // 🚀 init
   @override
   void initState() {
     super.initState();
-
-    // 👇 برای تشخیص برگشت به اپ
     WidgetsBinding.instance.addObserver(this);
-
-    _load();
   }
 
-  // 🔁 وقتی اپ دوباره فعال شد (مثلاً برگشتی از صفحه دیگر)
+  // وقتی اپ دوباره فعال شد
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _load(); // 🔥 auto refresh واقعی
+      setState(() {}); // فقط rebuild
     }
   }
 
-  // 🔁 وقتی از بیرون refreshNumber تغییر کرد
+  // وقتی refreshNumber تغییر کرد
   @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.refreshNumber != widget.refreshNumber) {
-      _load();
+      setState(() {}); // rebuild
     }
   }
 
   // ================= LOAD =================
-  void _load() {
-    setState(() {
-      futureData = loadData();
-    });
-  }
-
   Future<HomeData> loadData() async {
     final db = DatabaseHelper.instance;
     final allOrders = await db.getOrders();
@@ -90,23 +76,16 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // ================= REFRESH =================
-  Future<void> refresh() async {
-    _load();
-  }
-
   // ================= DETAILS =================
   Future<void> openDetails(int id) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => OrderDetailsScreen(orderId: id),
       ),
     );
 
-    if (result == true) {
-      _load();
-    }
+    setState(() {}); // 🔥 بعد از برگشت، فوراً آپدیت
   }
 
   // ================= UI BOX =================
@@ -140,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<HomeData>(
-      future: futureData,
+      future: loadData(), // ✅ همیشه دیتای جدید
       builder: (context, snapshot) {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -154,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen>
         final data = snapshot.data!;
 
         return RefreshIndicator(
-          onRefresh: refresh,
+          onRefresh: () async => setState(() {}),
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [

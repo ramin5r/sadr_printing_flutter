@@ -1,4 +1,4 @@
-name: sadr_printing_flutter_simple
+name: sadr
 description: Simple RTL Flutter app for Sadr Printing with sqflite database.
 publish_to: 'none'
 

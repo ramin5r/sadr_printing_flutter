@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../database_helper.dart';
 import '../order_model.dart';
 import '../add_order_screen.dart';
-import '../order_details_screen.dart';
+import 'order_details_screen.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});

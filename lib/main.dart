@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'add_order_screen.dart';
 import 'customers_screen.dart';
-import 'Navigator_Screens/home_screen.dart';
-import 'Navigator_Screens/orders_screen.dart'; // 👈 اضافه شد
+import 'Screens/home_screen.dart';
+import 'Screens/orders_screen.dart';
 
 void main() {
   runApp(const SadrPrintingApp());

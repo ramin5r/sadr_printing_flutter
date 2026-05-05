@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'order_model.dart';
+import '../database_helper.dart';
+import '../order_model.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final int orderId;
@@ -44,10 +44,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       status,
     );
 
-    // refresh UI
     _refresh();
 
-    // مهم: خبر دادن به صفحه Home
     if (mounted) {
       Navigator.pop(context, true);
     }
@@ -59,11 +57,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       appBar: AppBar(
         title: const Text('جزئیات سفارش'),
       ),
-
       body: FutureBuilder<OrderModel?>(
         future: futureOrder,
         builder: (context, snapshot) {
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -84,66 +80,53 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'سفارش #${order.id}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0056D2),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          order.printType,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      order.printType,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
-                // ================= STATUS =================
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        const Text(
-                          'تغییر وضعیت',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        Wrap(
-                          spacing: 8,
-                          children: statuses.map((status) {
-                            final isSelected = status == order.status;
-
-                            return ChoiceChip(
-                              label: Text(status),
-                              selected: isSelected,
-                              onSelected: (_) => changeStatus(status),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                //  STATUS Ui
+                Row(
+                  children: [
+                    Expanded(
+                      child: statusBox(
+                        'در حال انجام',
+                        Icons.pending,
+                        order.status,
+                        changeStatus,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: statusBox(
+                        'چاپ شده',
+                        Icons.print,
+                        order.status,
+                        changeStatus,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: statusBox(
+                        'تحویل داده شده',
+                        Icons.local_shipping,
+                        order.status,
+                        changeStatus,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // ================= INFO =================
+                // INFO
                 _info(Icons.person, 'مشتری',
                     '${order.customerName}\n${order.phone}'),
 
@@ -164,7 +147,49 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  // ================= INFO WIDGET =================
+  // StatusBox UI
+  Widget statusBox(
+      String title,
+      IconData icon,
+      String currentStatus,
+      Function(String) onTap,
+      ) {
+    final isSelected = title == currentStatus;
+
+    return GestureDetector(
+      onTap: () => onTap(title),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? Colors.white : Colors.black54,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isSelected ? Colors.white : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _info(IconData icon, String title, String text) {
     return Card(
       child: ListTile(
