@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+
+import 'theme.dart';
 import 'customer_model.dart';
 import 'database_helper.dart';
 
 class CustomersScreen extends StatefulWidget {
   final int refreshNumber;
+  final VoidCallback onGlobalRefresh;
 
-  const CustomersScreen({super.key, required this.refreshNumber});
+  const CustomersScreen({
+    super.key,
+    required this.refreshNumber,
+    required this.onGlobalRefresh,
+  });
 
   @override
   State<CustomersScreen> createState() => _CustomersScreenState();
@@ -45,6 +52,11 @@ class _CustomersScreenState extends State<CustomersScreen> {
     });
   }
 
+  void refreshAllPages() {
+    refresh();
+    widget.onGlobalRefresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<CustomerModel>>(
@@ -60,12 +72,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
               onChanged: (_) => refresh(),
               decoration: InputDecoration(
                 hintText: 'جستجوی نام یا شماره...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: AppTheme.primary,
                 ),
               ),
             ),
@@ -75,12 +84,18 @@ class _CustomersScreenState extends State<CustomersScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.lightPrimary,
                 borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: AppTheme.primary.withOpacity(0.15),
+                ),
               ),
               child: Text(
                 'تعداد مشتریان: ${customers.length}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
               ),
             ),
 
@@ -94,7 +109,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
               ...customers.map(
                     (customer) => CustomerCard(
                   customer: customer,
-                  onRefresh: refresh, // ✔ مهم
+                  onRefresh: refreshAllPages,
                 ),
               ),
           ],
@@ -114,11 +129,6 @@ class CustomerCard extends StatelessWidget {
     required this.onRefresh,
   });
 
-  void deleteCustomer(BuildContext context) async {
-    await DatabaseHelper.instance.deleteCustomer(customer.id!);
-    onRefresh();
-  }
-
   void editCustomer(BuildContext context) {
     final nameController = TextEditingController(text: customer.name);
     final phoneController = TextEditingController(text: customer.phone);
@@ -130,8 +140,21 @@ class CustomerCard extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameController),
-            TextField(controller: phoneController),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'نام مشتری',
+                prefixIcon: Icon(Icons.person),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: phoneController,
+              decoration: const InputDecoration(
+                labelText: 'شماره تماس',
+                prefixIcon: Icon(Icons.phone),
+              ),
+            ),
           ],
         ),
         actions: [
@@ -144,11 +167,12 @@ class CustomerCard extends StatelessWidget {
               await DatabaseHelper.instance.updateCustomer(
                 CustomerModel(
                   id: customer.id,
-                  name: nameController.text,
-                  phone: phoneController.text,
+                  name: nameController.text.trim(),
+                  phone: phoneController.text.trim(),
                   createdAt: customer.createdAt,
                 ),
               );
+
               Navigator.pop(context);
               onRefresh();
             },
@@ -164,11 +188,14 @@ class CustomerCard extends StatelessWidget {
     return Card(
       child: ListTile(
         onTap: () => editCustomer(context),
+        leading: const Icon(Icons.person),
         title: Text(customer.name),
         subtitle: Text(customer.phone),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => deleteCustomer(context),
+
+        // دکمه حذف پاک شد
+        trailing: const Icon(
+          Icons.edit,
+          color: AppTheme.primary,
         ),
       ),
     );

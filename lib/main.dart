@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'theme.dart';
 import 'add_order_screen.dart';
 import 'customers_screen.dart';
-import 'Screens/home_screen.dart';
-import 'Screens/orders_screen.dart';
+import 'home_screen.dart';
+import 'orders_screen.dart';
 
 void main() {
   runApp(const SadrPrintingApp());
 }
+
 class SadrPrintingApp extends StatelessWidget {
   const SadrPrintingApp({super.key});
 
@@ -22,13 +24,7 @@ class SadrPrintingApp extends StatelessWidget {
           child: child!,
         );
       },
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0056D2),
-        ),
-        fontFamily: 'sans',
-      ),
+      theme: AppTheme.lightTheme,
       home: const MainPage(),
     );
   }
@@ -66,34 +62,28 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: const Text('چاپخانه صدر'),
       ),
 
       body: IndexedStack(
         index: selectedIndex,
         children: [
-          // 🏠 HOME (5 سفارش آخر)
           HomeScreen(
             refreshNumber: refreshNumber,
             onAddOrder: openAddOrder,
           ),
 
-          // 📦 ORDERS (همه سفارشات)
-          OrdersScreen(),
+          OrdersScreen(
+            refreshNumber: refreshNumber,
+            onGlobalRefresh: refreshAll,
+          ),
 
-          // 👥 Customers
           CustomersScreen(
             refreshNumber: refreshNumber,
+            onGlobalRefresh: refreshAll,
           ),
         ],
       ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: openAddOrder,
-        child: const Icon(Icons.add),
-      ),
-
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {

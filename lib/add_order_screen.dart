@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'database_helper.dart';
 import 'order_model.dart';
+import 'theme.dart';
 
 class AddOrderScreen extends StatefulWidget {
   final OrderModel? order;
@@ -22,7 +24,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   final notesController = TextEditingController();
 
   String printType = 'چاپ دیجیتال';
-  String status = 'در حال انجام'; // ⭐ مهم اضافه شد
+  String status = 'در حال انجام';
 
   bool loading = false;
 
@@ -55,7 +57,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       notesController.text = o.notes;
 
       printType = o.printType;
-      status = o.status; // ⭐ مهم
+      status = o.status;
     }
   }
 
@@ -68,6 +70,22 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     dateController.dispose();
     notesController.dispose();
     super.dispose();
+  }
+
+  Future<void> pickDeliveryDate() async {
+    final now = DateTime.now();
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 5),
+    );
+
+    if (pickedDate != null) {
+      dateController.text =
+      '${pickedDate.year}/${pickedDate.month}/${pickedDate.day}';
+    }
   }
 
   Future<void> saveOrder() async {
@@ -98,7 +116,6 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
     setState(() => loading = false);
 
-    // ⭐ مهم: برای refresh Home
     Navigator.pop(context, true);
   }
 
@@ -110,22 +127,23 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       appBar: AppBar(
         title: Text(isEdit ? 'ویرایش سفارش' : 'ثبت سفارش'),
       ),
-
       body: Form(
         key: formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-
             buildField(nameController, 'نام مشتری', Icons.person),
-            buildField(phoneController, 'شماره تماس', Icons.phone,
-                type: TextInputType.phone),
+            buildField(
+              phoneController,
+              'شماره تماس',
+              Icons.phone,
+              type: TextInputType.number,
+            ),
 
             const SizedBox(height: 12),
 
-            // ================= TYPE =================
             DropdownButtonFormField<String>(
-              value: printType,
+              initialValue: printType,
               items: types
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
@@ -135,9 +153,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
             const SizedBox(height: 12),
 
-            // ================= STATUS (مهم اضافه شد) =================
             DropdownButtonFormField<String>(
-              value: status,
+              initialValue: status,
               items: statuses
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
@@ -147,16 +164,35 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
             const SizedBox(height: 12),
 
-            buildField(qtyController, 'تعداد', Icons.numbers,
-                type: TextInputType.number),
+            buildField(
+              qtyController,
+              'تعداد',
+              Icons.numbers,
+              type: TextInputType.number,
+            ),
 
-            buildField(priceController, 'قیمت', Icons.money,
-                type: TextInputType.number),
+            buildField(
+              priceController,
+              'قیمت',
+              Icons.money,
+              type: TextInputType.number,
+            ),
 
-            buildField(dateController, 'تاریخ تحویل', Icons.date_range),
+            buildField(
+              dateController,
+              'تاریخ تحویل',
+              Icons.date_range,
+              readOnly: true,
+              onTap: pickDeliveryDate,
+            ),
 
-            buildField(notesController, 'توضیحات', Icons.note,
-                maxLines: 3, required: false),
+            buildField(
+              notesController,
+              'توضیحات',
+              Icons.note,
+              maxLines: 3,
+              required: false,
+            ),
 
             const SizedBox(height: 20),
 
@@ -166,7 +202,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   ? const SizedBox(
                 width: 18,
                 height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
                   : const Icon(Icons.save),
               label: Text(isEdit ? 'ذخیره تغییرات' : 'ثبت سفارش'),
@@ -184,6 +223,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         TextInputType type = TextInputType.text,
         int maxLines = 1,
         bool required = true,
+        bool readOnly = false,
+        VoidCallback? onTap,
       }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -191,6 +232,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         controller: controller,
         keyboardType: type,
         maxLines: maxLines,
+        readOnly: readOnly,
+        onTap: onTap,
         validator: required
             ? (v) => v == null || v.isEmpty ? 'ضروری است' : null
             : null,
@@ -202,12 +245,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   InputDecoration inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
+      prefixIcon: Icon(
+        icon,
+        color: AppTheme.primary,
       ),
     );
   }
