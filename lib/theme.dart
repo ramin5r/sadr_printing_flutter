@@ -8,6 +8,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     fontFamily: 'sans',
+
     primaryColor: primary,
     scaffoldBackgroundColor: background,
 

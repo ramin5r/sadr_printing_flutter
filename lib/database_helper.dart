@@ -24,7 +24,6 @@ class DatabaseHelper {
       version: 1,
       onCreate: (db, version) async {
         await _createTables(db);
-        await _insertSampleData(db);
       },
     );
   }
@@ -55,10 +54,6 @@ class DatabaseHelper {
     ''');
   }
 
-  Future<void> _insertSampleData(Database db) async {
-    final now = DateTime.now().toIso8601String();
-  }
-
   // ================= INSERT =================
   Future<void> addOrderAndCustomer(OrderModel order) async {
     final db = await database;
@@ -76,14 +71,11 @@ class DatabaseHelper {
     await db.insert('orders', order.toMap());
   }
 
-  // ================= GET ORDERS =================
+  // ================= ORDERS =================
   Future<List<OrderModel>> getOrders() async {
     final db = await database;
 
-    final res = await db.query(
-      'orders',
-      orderBy: 'id DESC',
-    );
+    final res = await db.query('orders', orderBy: 'id DESC');
 
     return res.map((e) => OrderModel.fromMap(e)).toList();
   }
@@ -101,7 +93,6 @@ class DatabaseHelper {
     return OrderModel.fromMap(res.first);
   }
 
-  // ================= UPDATE ORDER =================
   Future<int> updateOrder(OrderModel order) async {
     final db = await database;
 
@@ -124,7 +115,7 @@ class DatabaseHelper {
     );
   }
 
-  // ================= DELETE =================
+  // ================= DELETE ORDER =================
   Future<int> deleteOrder(int id) async {
     final db = await database;
 
@@ -140,6 +131,7 @@ class DatabaseHelper {
     final phone = order.first['phone'] as String;
 
     return db.transaction<int>((txn) async {
+
       final result = await txn.delete(
         'orders',
         where: 'id = ?',
@@ -164,36 +156,34 @@ class DatabaseHelper {
     });
   }
 
-  // ================= CUSTOMERS =================
-  Future<List<CustomerModel>> getCustomers({String search = ''}) async {
+  // ================= DELETE CUSTOMER =================
+  Future<int> deleteCustomer(int id) async {
     final db = await database;
 
-    final res = await db.query(
+    return db.delete(
       'customers',
-      where: search.isEmpty ? null : 'name LIKE ? OR phone LIKE ?',
-      whereArgs: search.isEmpty ? null : ['%$search%', '%$search%'],
-      orderBy: 'id DESC',
+      where: 'id = ?',
+      whereArgs: [id],
     );
-
-    return res.map((e) => CustomerModel.fromMap(e)).toList();
   }
 
-
+  // ================= UPDATE CUSTOMER =================
   Future<int> updateCustomer(CustomerModel customer) async {
     final db = await database;
 
-    final oldCustomer = await db.query(
+    final old = await db.query(
       'customers',
       where: 'id = ?',
       whereArgs: [customer.id],
       limit: 1,
     );
 
-    if (oldCustomer.isEmpty) return 0;
+    if (old.isEmpty) return 0;
 
-    final oldPhone = oldCustomer.first['phone'] as String;
+    final oldPhone = old.first['phone'] as String;
 
     return db.transaction<int>((txn) async {
+
       final result = await txn.update(
         'customers',
         customer.toMap(),
@@ -215,14 +205,47 @@ class DatabaseHelper {
     });
   }
 
-  Future<int> deleteCustomer(int id) async {
+  // ================= CUSTOMERS =================
+  Future<List<CustomerModel>> getCustomers({String search = ''}) async {
     final db = await database;
 
-    return db.delete(
+    final res = await db.query(
       'customers',
-      where: 'id = ?',
-      whereArgs: [id],
+      where: search.isEmpty ? null : 'name LIKE ? OR phone LIKE ?',
+      whereArgs: search.isEmpty ? null : ['%$search%', '%$search%'],
+      orderBy: 'id DESC',
     );
+
+    return res.map((e) => CustomerModel.fromMap(e)).toList();
+  }
+
+
+  Future<List<CustomerModel>> getAllCustomers() async {
+    final db = await database;
+
+    final res = await db.query(
+      'customers',
+      orderBy: 'id DESC',
+    );
+
+    return res.map((e) => CustomerModel.fromMap(e)).toList();
+  }
+
+  Future<List<CustomerModel>> getCustomersLast24Hours() async {
+    final db = await database;
+
+    final since = DateTime.now()
+        .subtract(const Duration(hours: 24))
+        .toIso8601String();
+
+    final res = await db.query(
+      'customers',
+      where: 'createdAt >= ?',
+      whereArgs: [since],
+      orderBy: 'id DESC',
+    );
+
+    return res.map((e) => CustomerModel.fromMap(e)).toList();
   }
 
   // ================= COUNTERS =================
