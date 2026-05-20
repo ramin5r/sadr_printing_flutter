@@ -219,7 +219,6 @@ class DatabaseHelper {
     return res.map((e) => CustomerModel.fromMap(e)).toList();
   }
 
-
   Future<List<CustomerModel>> getAllCustomers() async {
     final db = await database;
 
@@ -246,6 +245,39 @@ class DatabaseHelper {
     );
 
     return res.map((e) => CustomerModel.fromMap(e)).toList();
+  }
+
+  // ================= REPORTS =================
+  Future<List<OrderModel>> getAllCustomerOrderDetails() async {
+    final db = await database;
+
+    final res = await db.query(
+      'orders',
+      orderBy: 'id DESC',
+    );
+
+    return res.map((e) => OrderModel.fromMap(e)).toList();
+  }
+
+  Future<List<OrderModel>> getNewCustomerOrderDetailsLast24Hours() async {
+    final db = await database;
+
+    final since = DateTime.now()
+        .subtract(const Duration(hours: 24))
+        .toIso8601String();
+
+    final res = await db.rawQuery(
+      '''
+      SELECT orders.*
+      FROM orders
+      INNER JOIN customers ON customers.phone = orders.phone
+      WHERE customers.createdAt >= ?
+      ORDER BY orders.id DESC
+      ''',
+      [since],
+    );
+
+    return res.map((e) => OrderModel.fromMap(e)).toList();
   }
 
   // ================= COUNTERS =================

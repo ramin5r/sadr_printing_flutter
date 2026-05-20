@@ -101,7 +101,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text('چاپخانه صدر'),
+        title: const Text('چاپخانه صدر',),
       ),
 
       body: IndexedStack(
