@@ -33,7 +33,6 @@ class _SettingScreenState extends State<SettingScreen> {
     final orders = await DatabaseHelper.instance.getAllCustomerOrderDetails();
 
     if (!mounted) return;
-
     setState(() => isExportingAllCustomers = false);
 
     if (orders.isEmpty) {
