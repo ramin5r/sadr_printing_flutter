@@ -138,7 +138,6 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       status: status,
       createdAt: widget.order?.createdAt ?? DateTime.now().toIso8601String(),
     );
-
     if (widget.order == null) {
       await DatabaseHelper.instance.addOrderAndCustomer(order);
     } else {
