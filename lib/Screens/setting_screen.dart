@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../database_helper.dart';
-import '../customer_report_pdf.dart';
+import '../Database/database_helper.dart';
+import 'customer_report_pdf.dart';
 
 class SettingScreen extends StatefulWidget {
   final bool isDarkMode;
   final void Function(bool) onThemeChanged;
-
-  final bool isEnglish;
-  final void Function(bool) onLanguageChanged;
-
   final VoidCallback onGlobalRefresh;
   final int refreshNumber;
 
@@ -17,8 +13,6 @@ class SettingScreen extends StatefulWidget {
     super.key,
     required this.isDarkMode,
     required this.onThemeChanged,
-    required this.isEnglish,
-    required this.onLanguageChanged,
     required this.onGlobalRefresh,
     required this.refreshNumber,
   });
@@ -36,20 +30,19 @@ class _SettingScreenState extends State<SettingScreen> {
 
     setState(() => isExportingAllCustomers = true);
 
-    final customers = await DatabaseHelper.instance.getAllCustomers();
+    final orders = await DatabaseHelper.instance.getAllCustomerOrderDetails();
 
     if (!mounted) return;
-
     setState(() => isExportingAllCustomers = false);
 
-    if (customers.isEmpty) {
-      showMessage('هنوز هیچ مشتری ثبت نشده است.');
+    if (orders.isEmpty) {
+      showMessage('هنوز هیچ مشتری یا سفارشی ثبت نشده است.');
       return;
     }
 
-    await CustomerReportPdf.printCustomers(
-      customers,
-      'All Customers',
+    await CustomerReportPdf.printOrders(
+      orders,
+      'گزارش کامل مشتری‌ها و سفارش‌ها',
     );
   }
 
@@ -58,21 +51,21 @@ class _SettingScreenState extends State<SettingScreen> {
 
     setState(() => isExportingLast24HoursCustomers = true);
 
-    final customers =
-        await DatabaseHelper.instance.getCustomersLast24Hours();
+    final orders =
+    await DatabaseHelper.instance.getNewCustomerOrderDetailsLast24Hours();
 
     if (!mounted) return;
 
     setState(() => isExportingLast24HoursCustomers = false);
 
-    if (customers.isEmpty) {
+    if (orders.isEmpty) {
       showMessage('در ۲۴ ساعت گذشته مشتری جدیدی ثبت نشده است.');
       return;
     }
 
-    await CustomerReportPdf.printCustomers(
-      customers,
-      'New Customers Last 24 Hours',
+    await CustomerReportPdf.printOrders(
+      orders,
+      'گزارش کامل مشتری‌های ۲۴ ساعت گذشته',
     );
   }
 
@@ -106,14 +99,14 @@ class _SettingScreenState extends State<SettingScreen> {
           child: ListTile(
             leading: isExportingAllCustomers
                 ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
                 : const Icon(Icons.picture_as_pdf),
-            title: const Text('خروجی PDF همه مشتری‌ها'),
+            title: const Text('خروجی PDF کامل همه مشتری‌ها'),
             subtitle: const Text(
-              'گزارش کامل تمام مشتری‌های ثبت‌شده را دریافت کنید.',
+              'شامل نام، شماره، نوع چاپ، تعداد، قیمت، تاریخ تحویل، وضعیت و توضیحات',
             ),
             onTap: isExportingAllCustomers ? null : exportAllCustomers,
           ),
@@ -125,14 +118,14 @@ class _SettingScreenState extends State<SettingScreen> {
           child: ListTile(
             leading: isExportingLast24HoursCustomers
                 ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
                 : const Icon(Icons.new_releases),
-            title: const Text('خروجی PDF مشتری‌های ۲۴ ساعت گذشته'),
+            title: const Text('خروجی PDF کامل مشتری‌های ۲۴ ساعت گذشته'),
             subtitle: const Text(
-              'گزارش مشتری‌هایی را بگیرید که در ۲۴ ساعت گذشته ثبت شده‌اند.',
+              'گزارش کامل مشتری‌هایی که در ۲۴ ساعت گذشته ثبت شده‌اند',
             ),
             onTap: isExportingLast24HoursCustomers
                 ? null

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-import '../theme.dart';
-import '../database_helper.dart';
-import '../order_model.dart';
-import '../order_details_screen.dart';
+import '../Themes/theme.dart';
+import '../Database/database_helper.dart';
+import '../Models/order_model.dart';
+import 'order_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int refreshNumber;
@@ -18,7 +17,6 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
 class HomeData {
   final int all;
   final int doing;
@@ -35,29 +33,18 @@ class HomeData {
   });
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      setState(() {});
-    }
-  }
-
+class _HomeScreenState extends State<HomeScreen> {
+  
   @override
   void didUpdateWidget(covariant HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-
+    // اگر از جای دیگری دستور رفرش صادر شد، صفحه را بروزرسانی کن
     if (oldWidget.refreshNumber != widget.refreshNumber) {
       setState(() {});
     }
   }
 
+  // دریافت اطلاعات آمار و آخرین سفارش‌ها از دیتابیس
   Future<HomeData> loadData() async {
     final db = DatabaseHelper.instance;
     final allOrders = await db.getOrders();
@@ -67,10 +54,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       doing: await db.countOrdersByStatus('در حال انجام'),
       printed: await db.countOrdersByStatus('چاپ شده'),
       delivered: await db.countOrdersByStatus('تحویل داده شده'),
-      orders: allOrders.take(5).toList(),
+      orders: allOrders.take(5).toList(), // فقط ۵ سفارش آخر را نمایش بده
     );
   }
 
+  // باز کردن صفحه جزئیات سفارش
   Future<void> openDetails(int id) async {
     await Navigator.push(
       context,
@@ -78,10 +66,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         builder: (_) => OrderDetailsScreen(orderId: id),
       ),
     );
-
-    setState(() {});
+    setState(() {}); // بعد از برگشت از صفحه جزئیات، آمار را بروزرسانی کن
   }
 
+  // ویجت نمایش هر باکس آمار (تعداد سفارشات)
   Widget statBox(String title, int value, IconData icon) {
     return Expanded(
       child: Container(
@@ -96,11 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              color: AppTheme.primary,
-              size: 22,
-            ),
+            Icon(icon, color: AppTheme.primary, size: 22),
             const SizedBox(height: 6),
             Text(
               title,
@@ -144,16 +128,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              // نمایش باکس‌های آمار در دو ردیف
               Row(
                 children: [
-                  statBox("همه", data.all, Icons.receipt_long),
+                  statBox("همه سفارشات", data.all, Icons.receipt_long),
                   statBox("در حال انجام", data.doing, Icons.pending),
                 ],
               ),
               Row(
                 children: [
                   statBox("چاپ شده", data.printed, Icons.print),
-                  statBox("تحویل", data.delivered, Icons.local_shipping),
+                  statBox("تحویل داده شده", data.delivered, Icons.local_shipping),
                 ],
               ),
 
@@ -170,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
               const SizedBox(height: 10),
 
+              // لیست آخرین سفارش‌ها
               if (data.orders.isEmpty)
                 const Center(child: Text("هیچ سفارشی وجود ندارد"))
               else
@@ -195,11 +181,5 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 }
