@@ -1,13 +1,13 @@
 class OrderModel {
-  final int? id; // شناسه یکتای سفارش (در دیتابیس خودکار ساخته می‌شود)
-  final String customerName; // نام مشتری
-  final String phone; // شماره تماس مشتری
-  final String printType; // نوع چاپ (مثلاً بنر، کارت ویزیت و غیره)
-  final int quantity; // تعداد سفارش
-  final int price; // قیمت کل سفارش
-  final double? height; // قد (فقط برای بنر، فلکس و استیکر)
-  final double? width; // بر یا عرض (فقط برای بنر، فلکس و استیکر)
-  final int deposit; // مبلغ بیعانه پرداختی
+  final int? id;
+  final String customerName;
+  final String phone;
+  final String printType;
+  final int quantity;
+  final int price;
+  final double? height;
+  final double? width;
+  final int deposit;
   final int balance; // مبلغ باقیمانده (الباقی)
   final String deliveryDate; // تاریخ تحویل سفارش
   final String notes; // توضیحات اضافی

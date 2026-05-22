@@ -1,8 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'customer_model.dart';
-import 'order_model.dart';
+import '../Models/customer_model.dart';
+import '../Models/order_model.dart';
 
 class DatabaseHelper {
   // الگوی Singleton برای اطمینان از وجود تنها یک نمونه از کلاس دیتابیس

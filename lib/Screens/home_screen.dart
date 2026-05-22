@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
-import 'database_helper.dart';
-import 'order_model.dart';
+import '../Themes/theme.dart';
+import '../Database/database_helper.dart';
+import '../Models/order_model.dart';
 import 'order_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,8 +17,6 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
-// مدلی برای نگهداری آمارهای صفحه اصلی
 class HomeData {
   final int all;
   final int doing;

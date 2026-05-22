@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
-import 'add_order_screen.dart';
-import 'customers_screen.dart';
-import 'home_screen.dart';
-import 'orders_screen.dart';
-import 'setting_screen.dart';
+import '../Themes/theme.dart';
+import '../Screens/add_order_screen.dart';
+import '../Screens/customers_screen.dart';
+import '../Screens/home_screen.dart';
+import '../Screens/orders_screen.dart';
+import '../Screens/setting_screen.dart';
 
 void main() {
   // نقطه شروع برنامه

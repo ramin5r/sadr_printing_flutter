@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../database_helper.dart';
-import '../customer_report_pdf.dart';
+import '../Database/database_helper.dart';
+import 'customer_report_pdf.dart';
 
 class SettingScreen extends StatefulWidget {
   final bool isDarkMode;

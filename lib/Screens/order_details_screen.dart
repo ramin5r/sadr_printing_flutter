@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
-import 'database_helper.dart';
-import 'order_model.dart';
+import '../Themes/theme.dart';
+import '../Database/database_helper.dart';
+import '../Models/order_model.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final int orderId;

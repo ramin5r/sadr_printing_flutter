@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
-import 'customer_model.dart';
-import 'database_helper.dart';
+import '../Themes/theme.dart';
+import '../Models/customer_model.dart';
+import '../Database/database_helper.dart';
 import 'customer_report_pdf.dart';
-import 'order_model.dart';
+import '../Models/order_model.dart';
 
 class CustomersScreen extends StatefulWidget {
   final int refreshNumber;
