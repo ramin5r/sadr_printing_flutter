@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../Database/database_helper.dart';
 import '../Models/order_model.dart';
 import '../Themes/theme.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
+
 
 class AddOrderScreen extends StatefulWidget {
   final OrderModel? order; // اگر برای ویرایش باشد، اطلاعات سفارش اینجا می‌آید
@@ -103,16 +106,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
   // باز کردن تقویم برای انتخاب تاریخ تحویل
   Future<void> pickDeliveryDate() async {
-    final now = DateTime.now();
-    final pickedDate = await showDatePicker(
+    final picked = await showPersianDatePicker(
       context: context,
-      initialDate: now,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 5),
+      initialDate: Jalali.now(),
+      firstDate: Jalali(1400, 1),
+      lastDate: Jalali(1450, 12),
     );
-
-    if (pickedDate != null) {
-      dateController.text = '${pickedDate.year}/${pickedDate.month}/${pickedDate.day}';
+    if (picked != null) {
+      dateController.text =
+      '${picked.year}/${picked.month}/${picked.day}';
     }
   }
 
@@ -168,13 +170,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             buildField(nameController, 'نام مشتری', Icons.person),
-            buildField(phoneController, 'شماره تماس', Icons.phone, type: TextInputType.number),
+            buildField(phoneController, 'شماره تماس', Icons.phone, type: TextInputType.number,maxLength: 10),
 
             const SizedBox(height: 12),
 
             // انتخاب نوع چاپ
             DropdownButtonFormField<String>(
-              value: printType,
+              initialValue: printType,
               items: types.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => setState(() => printType = v!),
               decoration: inputDecoration('نوع چاپ', Icons.print),
@@ -196,7 +198,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
 
             // انتخاب وضعیت سفارش
             DropdownButtonFormField<String>(
-              value: status,
+              initialValue: status,
               items: statuses.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => setState(() => status = v!),
               decoration: inputDecoration('وضعیت سفارش', Icons.flag),
@@ -234,7 +236,17 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   }
 
   // تابع کمکی برای ساخت فیلدهای متنی
-  Widget buildField(TextEditingController controller, String label, IconData icon, {TextInputType type = TextInputType.text, int maxLines = 1, bool required = true, bool readOnly = false, VoidCallback? onTap}) {
+  Widget buildField(
+      TextEditingController controller,
+      String label,
+      IconData icon, {
+        TextInputType type = TextInputType.text,
+        int maxLines = 1,
+        bool required = true,
+        bool readOnly = false,
+        VoidCallback? onTap,
+        int? maxLength,
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
@@ -243,7 +255,25 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         maxLines: maxLines,
         readOnly: readOnly,
         onTap: onTap,
-        validator: required ? (v) => v == null || v.isEmpty ? 'این فیلد ضروری است' : null : null,
+        maxLength: maxLength,
+
+        validator: required
+            ? (v) {
+          if (v == null || v.isEmpty) {
+            return 'این فیلد ضروری است';
+          }
+
+          // 📱 مخصوص شماره تماس
+          if (label == 'شماره تماس') {
+            if (v.length < 10) {
+              return 'شماره تماس باید 10 رقم باشد';
+            }
+          }
+
+          return null;
+        }
+            : null,
+
         decoration: inputDecoration(label, icon),
       ),
     );

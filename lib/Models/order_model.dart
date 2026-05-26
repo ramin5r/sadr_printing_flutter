@@ -8,11 +8,11 @@ class OrderModel {
   final double? height;
   final double? width;
   final int deposit;
-  final int balance; // مبلغ باقیمانده (الباقی)
-  final String deliveryDate; // تاریخ تحویل سفارش
-  final String notes; // توضیحات اضافی
-  final String status; // وضعیت سفارش (در حال انجام، چاپ شده، تحویل شده)
-  final String createdAt; // تاریخ و زمان ثبت سفارش
+  final int balance;
+  final String deliveryDate;
+  final String notes;
+  final String status;
+  final String createdAt;
 
   OrderModel({
     this.id,
@@ -31,7 +31,6 @@ class OrderModel {
     required this.createdAt,
   });
 
-  // تبدیل مدل به نقشه (Map) برای ذخیره در دیتابیس
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -51,7 +50,6 @@ class OrderModel {
     };
   }
 
-  // تبدیل اطلاعات دیتابیس (Map) به مدل سفارش
   factory OrderModel.fromMap(Map<String, dynamic> map) {
     return OrderModel(
       id: map['id'] as int?,

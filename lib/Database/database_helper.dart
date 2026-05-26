@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 import '../Models/customer_model.dart';
 import '../Models/order_model.dart';
 
@@ -21,7 +20,6 @@ class DatabaseHelper {
   // راه‌اندازی دیتابیس و تعیین مسیر ذخیره‌سازی
   Future<Database> _initDB() async {
     final path = join(await getDatabasesPath(), 'sadr_printing.db');
-
     return openDatabase(
       path,
       version: 2, // نسخه دیتابیس

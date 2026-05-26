@@ -15,6 +15,8 @@ dependencies:
   pdf: ^3.12.0
   printing: ^5.14.3
   path_provider: ^2.1.5
+  shamsi_date: ^1.1.1
+  persian_datetime_picker: ^3.2.0
 
 
 flutter:

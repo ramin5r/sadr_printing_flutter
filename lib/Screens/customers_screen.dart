@@ -132,7 +132,6 @@ class CustomerCard extends StatelessWidget {
   void editCustomer(BuildContext context) {
     final nameController = TextEditingController(text: customer.name);
     final phoneController = TextEditingController(text: customer.phone);
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
