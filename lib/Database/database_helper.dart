@@ -172,21 +172,21 @@ class DatabaseHelper {
     return res.map((e) => OrderModel.fromMap(e)).toList();
   }
 
-  // دریافت جزئیات سفارشات مشتریان جدید در ۲۴ ساعت گذشته
+  // دریافت سفارش‌های ثبت‌شده در ۲۴ ساعت گذشته
   Future<List<OrderModel>> getNewCustomerOrderDetailsLast24Hours() async {
     final db = await database;
-    final since = DateTime.now().subtract(const Duration(hours: 24)).toIso8601String();
 
-    final res = await db.rawQuery(
-      '''
-      SELECT orders.*
-      FROM orders
-      INNER JOIN customers ON customers.phone = orders.phone
-      WHERE customers.createdAt >= ?
-      ORDER BY orders.id DESC
-      ''',
-      [since],
+    final since = DateTime.now()
+        .subtract(const Duration(hours: 24))
+        .toIso8601String();
+
+    final res = await db.query(
+      'orders',
+      where: 'createdAt >= ?',
+      whereArgs: [since],
+      orderBy: 'id DESC',
     );
+
     return res.map((e) => OrderModel.fromMap(e)).toList();
   }
 

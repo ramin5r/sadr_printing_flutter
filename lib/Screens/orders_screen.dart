@@ -59,14 +59,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Future<void> openDetails(int id) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => OrderDetailsScreen(orderId: id),
       ),
     );
 
-    if (result == true) {
+    // بعد از برگشت از صفحه جزئیات، لیست سفارشات دوباره از دیتابیس خوانده شود
+    if (mounted) {
       refreshAllPages();
     }
   }
